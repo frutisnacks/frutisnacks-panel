@@ -6,7 +6,8 @@ export async function login(email: string, password: string) {
     email,
     password,
   });
-  setToken(res.data.token);
+
+  setToken(res.data.access_token);
   return res.data;
 }
 
