@@ -28,8 +28,10 @@ export default function TablaClientes({ clientes }: Props) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [detalles, setDetalles] = useState<DetalleCompra[]>([]);
   const [infoCompra, setInfoCompra] = useState({
-    total: "",
+    total: 0, // Initialize total as a number
     estado_pago: "",
+    // Consider adding a delivery_cost property to your Compra type/store
+    // if you explicitly store it in your backend. This would be even better.
   });
 
   const handleVerDetalles = (cliente: Cliente) => {
@@ -37,13 +39,22 @@ export default function TablaClientes({ clientes }: Props) {
     if (compra) {
       setDetalles(compra.detalles);
       setInfoCompra({
-        total: compra.total,
+        total: Number(compra.total), // Ensure it's a number
         estado_pago: compra.estado_pago,
       });
       onOpen();
     }
   };
 
+  const calculateProductsTotal = () => {
+    return detalles.reduce(
+      (sum, detalle) => sum + Number(detalle.total_price),
+      0
+    );
+  };
+
+  const productsSubtotal = calculateProductsTotal();
+  const calculatedDeliveryCost = infoCompra.total - productsSubtotal;
   return (
     <>
       <Table
@@ -130,8 +141,18 @@ export default function TablaClientes({ clientes }: Props) {
                   <p>
                     <strong>Estado del pago:</strong> {infoCompra.estado_pago}
                   </p>
+                  {/* Corrected Delivery Cost Calculation */}
                   <p>
-                    <strong>Total:</strong> S/ {infoCompra.total}
+                    <strong>Subtotal de productos:</strong> S/{" "}
+                    {productsSubtotal.toFixed(2)}
+                  </p>
+                  <p>
+                    <strong>Costo de Envío:</strong> S/{" "}
+                    {calculatedDeliveryCost.toFixed(2)}
+                  </p>
+                  <p>
+                    <strong>Total General:</strong> S/{" "}
+                    {infoCompra.total.toFixed(2)}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
